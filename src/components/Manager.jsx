@@ -4,6 +4,10 @@ import hideEye from "/hide.png"
 import { useState } from "react"
 import { useEffect } from "react"
 import { v4 as uuidv4 } from 'uuid';
+import copy from "/copy.svg"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Bounce } from 'react-toastify';
 
 const Manager = () => {
     const [form, setForm] = useState({ site: "", username: "", password: "" })
@@ -41,6 +45,17 @@ const Manager = () => {
     // Save the password
     const savePassword = () => {
         if (form.site.length > 3 && form.username.length > 3 && form.password.length > 3) {
+            toast.success('Password Saved Succesfully', {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+                });
             setPasswordArray([...paswordArray, { ...form, id: uuidv4() }])
             console.log(form);
 
@@ -50,26 +65,69 @@ const Manager = () => {
 
             setForm({ site: "", username: "", password: "" });
         }
+        else{
+            toast.error('Password not saved', {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+                });
+        }
     }
 
     // Delete the passwords
-    const deletePassword =(id)=>{
+    const deletePassword = (id) => {
         console.log("Delete button is clicked");
         let c = confirm("You sure yoou want to delete the password ?")
-        if(c){
-            setPasswordArray(paswordArray.filter(item=>item.id !== id))
-            localStorage.setItem("localPassword",JSON.stringify(paswordArray.filter(item=>item.id !== id)))
+        if (c) {
+            toast.success('Password Delete Succesfully', {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+                });
+            setPasswordArray(paswordArray.filter(item => item.id !== id))
+            localStorage.setItem("localPassword", JSON.stringify(paswordArray.filter(item => item.id !== id)))
         }
     }
 
 
     // Edit passwords
-    const editPassword=(id)=>{
-        setForm(paswordArray.filter(i=>i.id === id)[0])
-        setPasswordArray(paswordArray.filter(item =>item.id !== id))
+    const editPassword = (id) => {
+        console.log("Editing this password", id);
+        setForm(paswordArray.filter(i => i.id === id)[0])
+        setPasswordArray(paswordArray.filter(item => item.id !== id))
+    }
+
+    // Funtion for copying text
+    const copyText = (text) => {
+        navigator.clipboard.writeText(text)
     }
     return (
         <>
+            <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                transition="Bounce"
+            />
             <div className="absolute top-0 z-[-2] h-screen w-screen bg-neutral-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
             <div className="text-white  text-center mt-5 myContainer">
                 <h3 className="text-3xl font-bold">   &lt;
@@ -121,14 +179,49 @@ const Manager = () => {
                             <tbody className="bg-green-200 text-black font-bold">
                                 {paswordArray.map((item, index) => {
                                     return <tr key={index}>
-                                        <td className=" py-3">{item.site}</td>
-                                        <td className=" py-3">{item.username}</td>
-                                        <td className=" py-3">{item.password}</td>
+                                        <td className="text-center">
+                                            <div className="relative inline-block group">
+                                                <a target="_blank" href={item.site}>
+                                                    {item.site}
+                                                </a>
+                                                <button
+                                                    onClick={() => { copyText(item.site) }}
+                                                    className="text-white text-sm rounded-xl px-2 py-1 absolute -right-10 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none flex items-center">
+                                                    <img src={copy} className="invert mr-1" alt="Copy" />
+                                                </button>
+                                            </div>
+                                        </td>
+
+
+                                        <td className="text-center">
+                                            <div className="relative inline-block group">
+                                                <a target="#" href={""}>
+                                                    {item.username}
+                                                </a>
+                                                <button
+                                                    onClick={() => copyText(item.username)}
+                                                    className="text-white text-sm rounded-xl px-2 py-1 absolute -right-10 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300  focus:outline-none flex items-center">
+                                                    <img src={copy} className="invert mr-1" alt="Copy" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td className="text-center">
+                                            <div className="relative inline-block group">
+                                                <a target="#" href={""}>
+                                                    {item.password}
+                                                </a>
+                                                <button
+                                                    onClick={() => copyText(item.password)}
+                                                    className="text-white text-sm rounded-xl px-2 py-1 absolute -right-10 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none flex items-center">
+                                                    <img src={copy} className="invert mr-1" alt="Copy" />
+                                                </button>
+                                            </div>
+                                        </td>
                                         <td className="py-3 flex justify-center gap-4">
-                                            <button onClick={()=>editPassword(item.id)} className="edit-button bg-blue-500 text-white py-2 px-4 rounded transition-transform duration-200 hover:bg-blue-600 hover:scale-105">
+                                            <button onClick={() => editPassword(item.id)} className="edit-button bg-blue-500 text-white py-2 px-4 rounded transition-transform duration-200 hover:bg-blue-600 hover:scale-105">
                                                 Edit
                                             </button>
-                                            <button onClick={()=>deletePassword(item.id)} className="delete-button bg-red-500 text-white py-2 px-4 rounded transition-transform duration-200 hover:bg-red-600 hover:scale-105">
+                                            <button onClick={() => deletePassword(item.id)} className="delete-button bg-red-500 text-white py-2 px-4 rounded transition-transform duration-200 hover:bg-red-600 hover:scale-105">
                                                 Delete
                                             </button>
                                         </td>
