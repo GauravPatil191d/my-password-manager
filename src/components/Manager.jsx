@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import showEye from "/show.png"
-import hideEye from "/hide.png"
+// import hideEye from "/hide.png"
 import { useState } from "react"
 import { useEffect } from "react"
 import { v4 as uuidv4 } from 'uuid';
@@ -140,7 +140,7 @@ const Manager = () => {
                 <p className="text-lg font-semibold text-white">
                     Secure your digital life with our intuitive Password Manager -
                     <span className="text-green-500 font-bold">
-                        "where strong passwords meet effortless convenience!"
+                        where strong passwords meet effortless convenience!&quot;
                     </span>
                 </p>
                 <div className="flex items-center p-4 gap-8 justify-center flex-col ">
