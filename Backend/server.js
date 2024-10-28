@@ -6,7 +6,7 @@ import {MongoClient} from "mongodb"
 const url = 'mongodb://localhost:27017';
 const client = new MongoClient(url);
 // import {json} from 'body-parser'
-
+// Above is all the dependencies we imported
 const dbName = 'myPassMan'
 
 const port = 3000
