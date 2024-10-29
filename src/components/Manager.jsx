@@ -35,16 +35,27 @@ const Manager = () => {
     // Creating state for saving the passwords
     const [paswordArray, setPasswordArray] = useState([])
 
+
+    const getPassword = async () => {
+        try {
+            const req = await fetch('http://localhost:3000');
+            let localPassword = await req.json(); // Corrected here
+            setPasswordArray(localPassword);
+        } catch (error) {
+            console.error('Error fetching passwords:', error);
+        }
+    }
+
     // Useeffect for running when the component will get mounted
     useEffect(() => {
-        let localPassword = localStorage.getItem("localPassword")
-        if (localPassword) {
-            setPasswordArray(JSON.parse(localPassword))
-        }
+        getPassword()
     }, [])
     // Save the password
-    const savePassword = () => {
+    const savePassword = async () => {
         if (form.site.length > 3 && form.username.length > 3 && form.password.length > 3) {
+            if (form.id) {
+                await fetch("http://localhost:3000/", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: form.id }) })
+            }
             toast.success('Password Saved Succesfully', {
                 position: "top-center",
                 autoClose: 2000,
@@ -55,17 +66,18 @@ const Manager = () => {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-                });
+            });
             setPasswordArray([...paswordArray, { ...form, id: uuidv4() }])
             console.log(form);
 
-            localStorage.setItem("localPassword", JSON.stringify([...paswordArray, { ...form, id: uuidv4() }]))
+            // localStorage.setItem("localPassword", JSON.stringify([...paswordArray, { ...form, id: uuidv4() }]))
+            await fetch("http://localhost:3000/", { method: "POST", headers: { "Content-type": "application/json" }, body: JSON.stringify({ ...form, id: uuidv4() }) })
             console.log(form);
             console.log([...paswordArray, form]);
 
             setForm({ site: "", username: "", password: "" });
         }
-        else{
+        else {
             toast.error('Password not saved', {
                 position: "top-center",
                 autoClose: 2000,
@@ -76,12 +88,12 @@ const Manager = () => {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-                });
+            });
         }
     }
 
     // Delete the passwords
-    const deletePassword = (id) => {
+    const deletePassword = async (id) => {
         console.log("Delete button is clicked");
         let c = confirm("You sure yoou want to delete the password ?")
         if (c) {
@@ -95,9 +107,13 @@ const Manager = () => {
                 progress: undefined,
                 theme: "dark",
                 transition: Bounce,
-                });
+            });
             setPasswordArray(paswordArray.filter(item => item.id !== id))
-            localStorage.setItem("localPassword", JSON.stringify(paswordArray.filter(item => item.id !== id)))
+            // localStorage.setItem("localPassword", JSON.stringify(paswordArray.filter(item => item.id !== id)))
+            let res = await fetch("http://localhost:3000/", { method: "DELETE", headers: { "Content-type": "application/json" }, body: JSON.stringify({ id }) })
+            if (!res.ok) {
+                console.error('Failed to save password:', res);
+            }
         }
     }
 
@@ -105,9 +121,12 @@ const Manager = () => {
     // Edit passwords
     const editPassword = (id) => {
         console.log("Editing this password", id);
-        setForm(paswordArray.filter(i => i.id === id)[0])
-        setPasswordArray(paswordArray.filter(item => item.id !== id))
+        // setForm(paswordArray.filter(i => i.id === id)[0])
+        // setPasswordArray(paswordArray.filter(item => item.id !== id))
+        setForm({ ...paswordArray.filter(i => i.id === id)[0], id: id })
+        setPasswordArray(paswordArray.filter(item => item.id !== id));
     }
+
 
     // Funtion for copying text
     const copyText = (text) => {
